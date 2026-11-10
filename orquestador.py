@@ -275,7 +275,7 @@ def validar_cantidad(texto):
     return cantidad
 
 
-def guardar_pedido(cliente, chat_id, codigo, cantidad, update_id):
+def guardar_pedido(cliente, chat_id, codigo, cantidad, update_id, franja=""):
     if codigo not in PRODUCTOS:
         raise ValueError("Tutor desconocido.")
     if type(cantidad) is not int or not 1 <= cantidad <= CANTIDAD_MAXIMA:
@@ -300,7 +300,9 @@ def guardar_pedido(cliente, chat_id, codigo, cantidad, update_id):
                 telegram_update_id
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            cliente, chat_id, codigo, producto["nombre"], cantidad, precio,
+            # El horario se guarda junto al nombre: la tabla no cambia.
+            cliente, chat_id, codigo,
+            producto["nombre"] + (f" ({franja})" if franja else ""), cantidad, precio,
             total, ahora.strftime("%Y-%m-%d"), ahora.strftime("%H:%M:%S"),
             update_id,
         ))
@@ -476,7 +478,7 @@ def construir_conocimiento():
             f"  Precio: {pesos(tu['precio'])} por hora; con comisión "
             f"{pesos(prod['precio'])} por hora\n"
             f"  Modalidad: {p['modalidades'][tu['modalidad']]}\n"
-            f"  Horarios: {', '.join(tu['disponibilidad'])}\n"
+            f"  Horarios: {', '.join(f['etiqueta'] + ' (' + str(f['horas']) + ' h)' for f in FRANJAS[tu['codigo'].upper()])}\n"
             f"  Calificación: {tu['calificacion']} · {tu['tutorias']} tutorías · "
             f"{tu['universidad']}\n"
             f"  Experiencia: {tu['experiencia']}\n  Estilo: {tu['descripcion']}\n"
@@ -487,7 +489,7 @@ def construir_conocimiento():
     return "\n\n".join(t)
 
 
-CONOCIMIENTO = construir_conocimiento()
+# CONOCIMIENTO se construye después de leer los horarios (bloque F.3c).
 
 # ADAPTAR A SU MVP: personalidad y reglas del asistente.
 INSTRUCCIONES = f"""
@@ -510,6 +512,9 @@ REGLAS:
   natural, por ejemplo "quiero 2 horas con Laura", o usar los botones (elegir tutor
   y "Solicitar tutoría"). El programa le mostrará un resumen y le pedirá confirmar.
   Para conocer el valor sin registrar nada: "¿cuánto valen 3 horas?" o "Cotizar".
+- Cada horario tiene una duración (por ejemplo "Lun 3–6pm" = 3 horas). Al solicitar,
+  el programa pide el horario y luego las horas, que no pueden superar esa duración.
+  Nunca ofrezcas más horas de las que caben en un horario.
 - Cuando recomiendes un tutor, termina invitando a pedirlo con una frase natural,
   por ejemplo: "Si quieres, escríbeme cuántas horas necesitas con ella".
 - El programa pide las horas, calcula el total y guarda la solicitud. Solo el
@@ -793,9 +798,16 @@ def botones_cliente(chat_id):
     sesion = sesiones.get(chat_id) or {}
     seguimiento = ["Mis solicitudes", "Cancelar solicitud"]
     if sesion.get("etapa") == "confirmar":
-        return [["Sí, registrar", "No"], ["Cambiar horas"]]
+        return [["Sí, registrar", "No"], ["Cambiar horas", "Cambiar horario"]]
+    if sesion.get("etapa") == "franja":
+        etiquetas = [f["etiqueta"] for f in FRANJAS[sesion["codigo"]]]
+        return [etiquetas[i:i + 2] for i in range(0, len(etiquetas), 2)] + [["/cancelar"]]
     if sesion.get("etapa") in ("cantidad", "cantidad_cotizacion"):
-        return [["1", "2", "3", "4"], ["/cancelar"]]
+        if sesion.get("franja") is not None:
+            limite = FRANJAS[sesion["codigo"]][sesion["franja"]]["horas"]
+        else:
+            limite = max_horas(sesion["codigo"])
+        return [[str(n) for n in range(1, min(limite, 4) + 1)], ["/cancelar"]]
     if sesion.get("codigo"):
         return [["Cotizar", "Solicitar tutoría"], seguimiento, ["Ver otros tutores"]]
     if sesion.get("area"):
@@ -812,6 +824,10 @@ def botones_cliente(chat_id):
 # --------------------------------------------------------
 def texto_cotizacion(codigo, cantidad):
     p = PRODUCTOS[codigo]
+    if cantidad > max_horas(codigo):
+        return (f"⚠️ El horario más largo de {p['tutor']} es de {max_horas(codigo)} "
+                f"{UNIDAD}, así que puedes cotizar de 1 a {max_horas(codigo)}. "
+                f"Horarios: {', '.join(f['etiqueta'] for f in FRANJAS[codigo])}.")
     subtotal = cantidad * p["precio_tutor"]
     total = cantidad * p["precio"]
     return (
@@ -885,6 +901,99 @@ def extraer_horas(limpio):
     return valor
 
 
+# --------------------------------------------------------
+# F.3c. NUEVO C3S2: HORARIOS (FRANJAS) DE CADA TUTOR
+# --------------------------------------------------------
+# «Lun 3–6pm» dura 3 horas: no se pueden pedir más horas que las
+# que caben en el horario elegido.
+DIAS = {"lun": "lunes", "mar": "martes", "mie": "miercoles", "jue": "jueves",
+        "vie": "viernes", "sab": "sabado", "dom": "domingo"}
+
+
+def _hora24(numero, sufijo):
+    h = int(numero)
+    if sufijo == "m":                    # «12m» = mediodía
+        return 12
+    if sufijo == "pm" and h < 12:
+        return h + 12
+    if sufijo == "am" and h == 12:
+        return 0
+    return h
+
+
+def duracion_franja(etiqueta):
+    m = re.match(r"^(\S+)\s+(\d{1,2})(am|pm|m)?\s*[–-]\s*(\d{1,2})(am|pm|m)$",
+                 etiqueta.strip(), re.I)
+    if not m:
+        return None
+    _, h1, s1, h2, s2 = m.groups()
+    fin = _hora24(h2, s2.lower())
+    inicio = _hora24(h1, (s1 or ("am" if s2.lower() == "m" else s2)).lower())
+    if not s1 and inicio >= fin:         # «11–1pm» empieza en la mañana
+        inicio = _hora24(h1, "am")
+    return fin - inicio if fin > inicio else None
+
+
+FRANJAS = {}
+for _t in TUTORES:
+    FRANJAS[_t["codigo"].upper()] = [
+        {"etiqueta": e, "horas": min(duracion_franja(e) or CANTIDAD_MAXIMA, CANTIDAD_MAXIMA)}
+        for e in _t["disponibilidad"]]
+
+
+# Base de conocimiento de la IA, ya con la duración de cada horario.
+CONOCIMIENTO = construir_conocimiento()
+
+
+def max_horas(codigo):
+    return max(f["horas"] for f in FRANJAS[codigo])
+
+
+def detectar_franja(codigo, limpio, abreviado=False):
+    """Índice del horario mencionado («el sábado», «Lun 3–6pm») o None."""
+    franjas = FRANJAS[codigo]
+    for i, f in enumerate(franjas):
+        if limpio.startswith(normalizar(f["etiqueta"])):
+            return i
+    palabras = list(DIAS.values()) + (list(DIAS) if abreviado else [])
+    dichos = {d[:3] for d in re.findall(r"\b(" + "|".join(palabras) + r")\b", limpio)}
+    candidatos = [i for i, f in enumerate(franjas) if normalizar(f["etiqueta"])[:3] in dichos]
+    return candidatos[0] if len(candidatos) == 1 else None
+
+
+def limpiar_solicitud(sesion):
+    for clave in ("horas", "franja"):
+        sesion.pop(clave, None)
+
+
+def avanzar_solicitud(sesion):
+    """Pide lo que falte (horario y horas) y deja la solicitud lista para confirmar."""
+    codigo = sesion["codigo"]
+    p = PRODUCTOS[codigo]
+    franjas = FRANJAS[codigo]
+    if sesion.get("franja") is None and len(franjas) == 1:
+        sesion["franja"] = 0
+    if sesion.get("franja") is None:
+        sesion["etapa"] = "franja"
+        lineas = [f"🗓️ ¿En qué horario quieres la tutoría con {p['tutor']}?"]
+        lineas += [f"• {f['etiqueta']} (hasta {f['horas']} h)" for f in franjas]
+        lineas.append("Toca un horario o escribe el día.")
+        return "\n".join(lineas)
+    f = franjas[sesion["franja"]]
+    horas = sesion.get("horas")
+    if horas and horas > f["horas"]:
+        sesion.pop("horas")
+        sesion["etapa"] = "cantidad"
+        return (f"⚠️ En el horario {f['etiqueta']} {p['tutor']} solo tiene {f['horas']} "
+                f"{UNIDAD} disponibles. ¿Cuántas quieres? (1 a {f['horas']})")
+    if not horas:
+        sesion["etapa"] = "cantidad"
+        return (f"¿Cuántas {UNIDAD} quieres en el horario {f['etiqueta']}? "
+                f"Elige un botón o escribe un número de 1 a {f['horas']}.")
+    sesion["etapa"] = "confirmar"
+    return resumen_confirmacion(codigo, horas, f["etiqueta"])
+
+
 def detectar_tutor(limpio):
     codigo = re.search(r"\btut-?([0-9]{2})\b", limpio)
     if codigo and f"TUT-{codigo[1]}" in PRODUCTOS:
@@ -951,10 +1060,11 @@ def es_afirmativo(limpio):
         r"hazlo|vale|me sirve|esta bien|de acuerdo)\b", limpio))
 
 
-def resumen_confirmacion(codigo, horas):
+def resumen_confirmacion(codigo, horas, franja):
     p = PRODUCTOS[codigo]
     return (f"📝 Revisa tu solicitud:\n"
             f"👩‍🏫 {p['nombre']} ({codigo})\n"
+            f"🗓️ Horario: {franja}\n"
             f"Horas: {horas}\n"
             f"Total: {pesos(horas * p['precio'])} (incluye {COMISION} % de comisión)\n\n"
             "¿La registro? Pulsa «Sí, registrar» o «No».")
@@ -963,9 +1073,7 @@ def resumen_confirmacion(codigo, horas):
 def orientar_compra(sesion, texto):
     limpio = normalizar(texto).lstrip("¿¡")
     if limpio in ("si", "si por favor", "si quiero", "claro", "dale"):
-        sesion["etapa"] = "cantidad"
-        return (f"¡Perfecto! ¿Cuántas {UNIDAD} de tutoría con "
-                f"{PRODUCTOS[sesion['codigo']]['tutor']} quieres? (1 a {CANTIDAD_MAXIMA})")
+        return avanzar_solicitud(sesion)
     if limpio in NEGACIONES:
         return ("De acuerdo, no registraré nada. Puedes seguir preguntando; "
                 "cuando quieras, pulsa Solicitar tutoría.")
@@ -1137,37 +1245,67 @@ def procesar(mensaje, update_id, configuracion=None):
     if comando == "/cancelar":
         if sesion:
             sesion["etapa"] = "consulta"
-            sesion.pop("horas", None)
+            limpiar_solicitud(sesion)
         return "Listo, no registré nada. Puedes seguir consultando o elegir otra opción."
 
-    # INICIO NUEVO C3S2: confirmar una solicitud escrita en lenguaje natural.
+    # INICIO NUEVO C3S2: confirmar la solicitud (horario + horas).
     if sesion and sesion.get("etapa") == "confirmar":
         if es_afirmativo(limpio):
-            horas = sesion.pop("horas")
-            pedido = guardar_pedido(nombre, chat_id, sesion["codigo"], horas, update_id)
+            franja = FRANJAS[sesion["codigo"]][sesion["franja"]]["etiqueta"]
+            pedido = guardar_pedido(nombre, chat_id, sesion["codigo"], sesion["horas"],
+                                    update_id, franja)
+            limpiar_solicitud(sesion)
             sesion["etapa"] = "consulta"     # Solo tras confirmar en SQLite.
             sesion["recien_registrada"] = pedido["consecutivo"]
             mostrar([pedido])
             return "✅ ¡Solicitud registrada!\n\n" + mensaje_pedido(pedido)
         if limpio in NEGACIONES:
             sesion["etapa"] = "consulta"
-            sesion.pop("horas", None)
-            return ("De acuerdo, no registré nada. Si quieres, cambia las horas o "
-                    "pregúntame lo que necesites.")
+            limpiar_solicitud(sesion)
+            return ("De acuerdo, no registré nada. Si quieres, cambia el horario o las "
+                    "horas, o pregúntame lo que necesites.")
         if limpio == "cambiar horas":
-            sesion["etapa"] = "cantidad"
             sesion.pop("horas", None)
-            return f"¿Cuántas {UNIDAD} quieres? Elige un botón o escribe un número de 1 a {CANTIDAD_MAXIMA}."
+            return avanzar_solicitud(sesion)
+        if limpio == "cambiar horario":
+            limpiar_solicitud(sesion)
+            return avanzar_solicitud(sesion)
         try:
             nuevas = extraer_horas(limpio)
         except ValueError as error:
             return str(error)
-        if nuevas:
-            sesion["horas"] = nuevas
-            return resumen_confirmacion(sesion["codigo"], nuevas)
+        otra_franja = detectar_franja(sesion["codigo"], limpio)
+        if nuevas or otra_franja is not None:
+            if otra_franja is not None:
+                sesion["franja"] = otra_franja
+            if nuevas:
+                sesion["horas"] = nuevas
+            return avanzar_solicitud(sesion)
         # Cambió de tema: se abandona la confirmación sin registrar nada.
         sesion["etapa"] = "consulta"
-        sesion.pop("horas", None)
+        limpiar_solicitud(sesion)
+
+    # Elegir el horario (franja) del tutor.
+    if sesion and sesion.get("etapa") == "franja":
+        indice = detectar_franja(sesion["codigo"], limpio, abreviado=True)
+        try:
+            horas_dichas = None if indice is not None and limpio.startswith(
+                normalizar(FRANJAS[sesion["codigo"]][indice]["etiqueta"])) else extraer_horas(limpio)
+        except ValueError as error:
+            return str(error)
+        if horas_dichas:
+            sesion["horas"] = horas_dichas
+        if indice is not None:
+            sesion["franja"] = indice
+            return avanzar_solicitud(sesion)
+        if horas_dichas:
+            return avanzar_solicitud(sesion)     # Vuelve a mostrar los horarios.
+        if not (comando or detectar_tutor(limpio) or detectar_area(limpio)
+                or len(limpio.split()) >= 4):
+            return ("Elige uno de los horarios con los botones o escribe el día, "
+                    "por ejemplo «el sábado». Para salir, pulsa /cancelar.")
+        sesion["etapa"] = "consulta"             # Cambió de tema: se atiende.
+        limpiar_solicitud(sesion)
     # FIN NUEVO C3S2
 
     sin_tutor = not sesion or not sesion.get("codigo")
@@ -1179,14 +1317,12 @@ def procesar(mensaje, update_id, configuracion=None):
     if comando == "/cotizar":
         sesion["etapa"] = "cantidad_cotizacion"
         return (f"💰 ¿Cuántas {UNIDAD} quieres cotizar? Elige un botón o escribe un "
-                f"número de 1 a {CANTIDAD_MAXIMA}. Esta consulta no registra nada.")
+                f"número de 1 a {max_horas(sesion['codigo'])}. Esta consulta no registra nada.")
 
-    # Botón Solicitar tutoría: pide las horas y registra (flujo de la Guía 03).
+    # Botón Solicitar tutoría: pide horario y horas, y confirma.
     if comando == "/comprar" or (limpio in INTENCIONES and not sin_tutor):
-        sesion["etapa"] = "cantidad"
-        p = PRODUCTOS[sesion["codigo"]]
-        return (f"¿Cuántas {UNIDAD} de tutoría con {p['tutor']} quieres? "
-                f"Elige un botón o escribe un número de 1 a {CANTIDAD_MAXIMA}.")
+        limpiar_solicitud(sesion)
+        return avanzar_solicitud(sesion)
 
     if sesion and sesion.get("etapa") in ("cantidad", "cantidad_cotizacion"):
         try:
@@ -1195,18 +1331,19 @@ def procesar(mensaje, update_id, configuracion=None):
             return str(error) + " Para salir, pulsa /cancelar."
         cambia_tema = detectar_tutor(limpio) or detectar_area(limpio)
         if cantidad is None and len(limpio.split()) < 3 and not cambia_tema:
-            return (f"Escribe un número entero de 1 a {CANTIDAD_MAXIMA}. "
+            return ("Escribe un número entero de horas, por ejemplo «2». "
                     "Para salir, pulsa /cancelar.")
         if cantidad is not None:
             if sesion["etapa"] == "cantidad_cotizacion":
                 sesion["etapa"] = "consulta"
                 return texto_cotizacion(sesion["codigo"], cantidad)
-            pedido = guardar_pedido(nombre, chat_id, sesion["codigo"], cantidad, update_id)
-            sesion["etapa"] = "consulta"     # Solo tras confirmar en SQLite.
-            sesion["recien_registrada"] = pedido["consecutivo"]
-            mostrar([pedido])
-            return "✅ ¡Solicitud registrada!\n\n" + mensaje_pedido(pedido)
-        sesion["etapa"] = "consulta"         # Escribió una pregunta: se atiende.
+            sesion["horas"] = cantidad
+            otra_franja = detectar_franja(sesion["codigo"], limpio)
+            if otra_franja is not None:
+                sesion["franja"] = otra_franja
+            return avanzar_solicitud(sesion)     # Valida el límite y pide confirmar.
+        sesion["etapa"] = "consulta"             # Escribió una pregunta: se atiende.
+        limpiar_solicitud(sesion)
 
     if not texto:
         return "Escríbeme tu pregunta o usa los botones de abajo."
@@ -1228,9 +1365,9 @@ def procesar(mensaje, update_id, configuracion=None):
         if recien and es_afirmativo(limpio):
             return (f"✅ Tu solicitud {recien} ya quedó registrada. Puedes verla en "
                     "Mis solicitudes. ¿Necesitas algo más?")
-        if limpio == "cambiar horas" and sesion and sesion.get("codigo"):
-            sesion["etapa"] = "cantidad"
-            return f"¿Cuántas {UNIDAD} quieres? Elige un botón o escribe un número de 1 a {CANTIDAD_MAXIMA}."
+        if limpio in ("cambiar horas", "cambiar horario") and sesion and sesion.get("codigo"):
+            limpiar_solicitud(sesion)
+            return avanzar_solicitud(sesion)
 
         quiere = quiere_solicitar(limpio)
         precio = pregunta_precio(limpio)
@@ -1246,10 +1383,11 @@ def procesar(mensaje, update_id, configuracion=None):
             seleccionar_tutor(chat_id, tutor, nombre, reiniciar=False)
             sesion, sin_tutor = sesiones[chat_id], False
             horas = horas or deseadas
-            if horas and not precio:
-                sesion["etapa"] = "confirmar"
+            if (horas or quiere) and not precio:
+                limpiar_solicitud(sesion)
                 sesion["horas"] = horas
-                return resumen_confirmacion(tutor, horas)
+                sesion["franja"] = detectar_franja(tutor, limpio)
+                return avanzar_solicitud(sesion)
             if len(limpio.split()) <= 3 and not (quiere or precio):
                 return bienvenida_tutor(nombre, PRODUCTOS[tutor])
 
@@ -1286,16 +1424,15 @@ def procesar(mensaje, update_id, configuracion=None):
             # Ya hay tutor: unas horas escritas («2 horas», «2») o un «sí» bastan
             # para preparar la solicitud. Nada se guarda sin la confirmación.
             horas = horas or (deseadas if quiere or es_afirmativo(limpio) else None)
-            if horas and not precio:
+            franja = detectar_franja(sesion["codigo"], limpio)
+            solo_dia = (franja is not None and "?" not in texto
+                        and len(limpio.split()) <= 4)       # «el sábado», no una pregunta
+            if (horas or quiere or es_afirmativo(limpio) or solo_dia) and not precio:
                 sesion.pop("horas_deseadas", None)
-                sesion["etapa"] = "confirmar"
+                limpiar_solicitud(sesion)
                 sesion["horas"] = horas
-                return resumen_confirmacion(sesion["codigo"], horas)
-            if quiere or es_afirmativo(limpio):
-                sesion["etapa"] = "cantidad"
-                p = PRODUCTOS[sesion["codigo"]]
-                return (f"¡Listo! ¿Cuántas {UNIDAD} de tutoría con {p['tutor']} quieres? "
-                        f"Elige un botón o escribe un número de 1 a {CANTIDAD_MAXIMA}.")
+                sesion["franja"] = franja
+                return avanzar_solicitud(sesion)
             orientacion = orientar_compra(sesion, texto)
             if orientacion:
                 return orientacion

@@ -114,6 +114,21 @@ function pintarTutores() {
 }
 
 /* 6. Perfil y cotizador */
+/* Duración de un horario: «Lun 3–6pm» = 3 h (igual que en orquestador.py). */
+function duracionFranja(etiqueta) {
+  const m = etiqueta.trim().match(/^(\S+)\s+(\d{1,2})(am|pm|m)?\s*[–-]\s*(\d{1,2})(am|pm|m)$/i);
+  if (!m) return null;
+  const a24 = (h, suf) => { h = Number(h); if (suf === "m") return 12; if (suf === "pm" && h < 12) return h + 12; if (suf === "am" && h === 12) return 0; return h; };
+  const s2 = m[5].toLowerCase();
+  const fin = a24(m[4], s2);
+  let inicio = a24(m[2], (m[3] || (s2 === "m" ? "am" : s2)).toLowerCase());
+  if (!m[3] && inicio >= fin) inicio = a24(m[2], "am");
+  return fin > inicio ? fin - inicio : null;
+}
+function maxHorasTutor(t) {
+  return Math.max(...t.disponibilidad.map((e) => duracionFranja(e) || 1));
+}
+
 function pintarPerfil() {
   const t = estado.tutor;
   const ini = document.getElementById("perfil-iniciales");
@@ -125,7 +140,14 @@ function pintarPerfil() {
   document.getElementById("perfil-materias").textContent = t.asignaturas.join(", ");
   document.getElementById("perfil-experiencia").textContent = t.experiencia;
   document.getElementById("perfil-modalidad").textContent = MT_MODALIDAD[t.modalidad];
-  document.getElementById("perfil-horarios").textContent = t.disponibilidad.join(", ");
+  document.getElementById("perfil-horarios").textContent =
+    t.disponibilidad.map((e) => `${e} (${duracionFranja(e) || "?"} h)`).join(", ");
+  /* Solo se ofrecen las horas que caben en el horario más largo del tutor. */
+  const limite = maxHorasTutor(t);
+  if (estado.horas > limite) estado.horas = 1;
+  document.querySelectorAll("#selector-horas button").forEach((b) => {
+    b.hidden = Number(b.dataset.horas) > limite;
+  });
   document.getElementById("perfil-tutorias").textContent = t.tutorias;
   document.getElementById("perfil-codigo").textContent = t.codigo;
   /* Deep link con el código del tutor: /start TUT-01 */
@@ -143,7 +165,7 @@ function actualizarCotizacion() {
     b.setAttribute("aria-pressed", String(Number(b.dataset.horas) === estado.horas)));
   const tema = estado.tema ? ` Cuéntale a Tuti que quieres trabajar ${estado.tema}.` : "";
   document.getElementById("cot-nota").textContent =
-    `En Telegram pulsa Solicitar tutoría y escribe ${estado.horas} para recibir tu consecutivo.${tema} Cotizar aquí no registra nada.`;
+    `En Telegram pulsa Solicitar tutoría, elige el horario y escribe ${estado.horas}. Cada horario dura ${maxHorasTutor(t)} h como máximo.${tema} Cotizar aquí no registra nada.`;
 }
 document.getElementById("selector-horas").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-horas]");

@@ -23,12 +23,12 @@ PLATAFORMA = {
     ),
     "comision_porcentaje": 10,  # Mi Tutor cobra 10 % sobre el valor del tutor
     "como_solicitar": [
-        "Entrar a la página web de Mi Tutor y pulsar 'Soy estudiante'.",
-        "Elegir el área (Matemáticas, Física o Química) y la asignatura.",
-        "Elegir qué necesita: tutoría, preparación para parcial, ayuda con taller o refuerzo de un tema.",
-        "Ver los tutores disponibles, abrir el perfil y pulsar 'Solicitar tutoría'.",
-        "Indicar fecha, hora, duración y modalidad; la página muestra el resumen con el precio total.",
-        "Confirmar la solicitud. El tutor la revisa y la acepta.",
+        "Entrar a la página web de Mi Tutor y elegir un área o un tutor (botón 'Necesito un tutor' o el catálogo).",
+        "El botón abre el chat de Telegram con Tuti, con el tutor o el área ya cargados.",
+        "Preguntarle a Tuti lo que necesite; para ver el valor sin registrar nada, pulsar 'Cotizar'.",
+        "Pulsar 'Solicitar tutoría' o escribir, por ejemplo, 'quiero 2 horas con Laura'.",
+        "Indicar las horas (de 1 a 10) y confirmar; el sistema entrega un consecutivo SOL-0000.",
+        "Mi Tutor revisa la solicitud con el tutor; el estado se consulta en 'Mis solicitudes'.",
     ],
     "ser_tutor": (
         "Cualquier estudiante que domine una materia puede postularse como "
@@ -198,8 +198,8 @@ PREGUNTAS_FRECUENTES = [
                      "Ejemplo: 1 hora con un tutor de $18.000 = $18.000 + $1.800 = $19.800.",
     },
     {
-        "pregunta": "¿Puedo pedir menos o más de una hora?",
-        "respuesta": "Sí. El precio se calcula proporcional a la duración: (precio por hora × minutos ÷ 60) + 10 %.",
+        "pregunta": "¿Cuántas horas puedo pedir?",
+        "respuesta": "Horas enteras, hasta lo que dure el horario elegido del tutor (por ejemplo, Lun 3–6pm permite hasta 3 horas). El total es horas × (precio por hora del tutor + 10 % de comisión). No se manejan fracciones de hora.",
     },
     {
         "pregunta": "¿Las tutorías son virtuales o presenciales?",
