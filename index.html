@@ -205,14 +205,21 @@
   /* Directorio de tutores con filtro por área */
   (function () {
     const lista = document.getElementById("lista-directorio");
+    const conteo = document.getElementById("conteo-tutores");
     MT_TUTORES.forEach((t) => lista.appendChild(mtFilaTutor(t)));
     document.querySelectorAll("[data-filtro]").forEach((boton) => {
       boton.addEventListener("click", () => {
         const filtro = boton.dataset.filtro;
         document.querySelectorAll("[data-filtro]").forEach((b) => b.setAttribute("aria-pressed", String(b === boton)));
+        let visibles = 0;
         lista.querySelectorAll(".fila-tutor").forEach((fila) => {
-          fila.hidden = filtro !== "todas" && fila.dataset.area !== filtro;
+          const oculta = filtro !== "todas" && fila.dataset.area !== filtro;
+          fila.hidden = oculta;
+          /* El CSS de .fila-tutor (display:grid) anula [hidden]: se oculta explícitamente. */
+          fila.style.display = oculta ? "none" : "";
+          if (!oculta) visibles++;
         });
+        conteo.textContent = visibles + " tutores visibles";
       });
     });
   })();
