@@ -1,0 +1,7 @@
+# Nunca subir credenciales, librerías, base de datos ni registros
+.env
+libs/
+__pycache__/
+*.db
+*.log
+.bot_listo.json

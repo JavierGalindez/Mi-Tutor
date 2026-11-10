@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Encuentra tu tutor — Mi Tutor</title>
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="encabezado">
+  <div class="contenedor">
+    <a href="index.html" class="logo" aria-label="Mi Tutor, inicio">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#F4D35E"/><path d="M9 22V10l7 7 7-7v12" fill="none" stroke="#16233A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Mi Tutor
+    </a>
+    <nav class="navegacion" aria-label="Principal">
+      <a href="index.html#tutores">Todos los tutores</a>
+      <a href="tutor.html">Ser tutor</a>
+      <button type="button" class="boton boton-sm" id="nav-mis-solicitudes">Mis solicitudes</button>
+    </nav>
+  </div>
+</header>
+
+<div class="flujo-cabecera">
+  <div class="contenedor">
+    <ol class="progreso" id="progreso" aria-label="Progreso">
+      <li data-etapa="area">Área</li>
+      <li data-etapa="asignatura">Asignatura</li>
+      <li data-etapa="necesidad">Necesidad</li>
+      <li data-etapa="tutores">Tutor</li>
+      <li data-etapa="perfil">Cotizar y solicitar</li>
+    </ol>
+    <button type="button" class="boton-atras" id="btn-atras">Volver al paso anterior</button>
+  </div>
+</div>
+
+<main class="flujo">
+  <div class="contenedor">
+
+    <section class="etapa" id="et-area" aria-labelledby="t-area">
+      <h1 id="t-area">¿En qué área necesitas ayuda?</h1>
+      <p class="intro">Mi Tutor se enfoca en ciencias básicas. Elige el área para ver sus asignaturas.</p>
+      <div class="opciones" id="lista-areas"></div>
+    </section>
+
+    <section class="etapa" id="et-asignatura" aria-labelledby="t-asignatura">
+      <h1 id="t-asignatura">Elige la asignatura</h1>
+      <p class="intro">Así te mostramos primero a los tutores que la dominan.</p>
+      <div class="chips" id="lista-asignaturas"></div>
+    </section>
+
+    <section class="etapa" id="et-necesidad" aria-labelledby="t-necesidad">
+      <h1 id="t-necesidad">¿Qué tipo de ayuda buscas?</h1>
+      <p class="intro" id="necesidad-contexto"></p>
+      <div class="opciones cuatro" id="lista-necesidades"></div>
+    </section>
+
+    <section class="etapa" id="et-tema" aria-labelledby="t-tema">
+      <h1 id="t-tema">¿Qué tema quieres reforzar?</h1>
+      <p class="intro" id="tema-contexto"></p>
+      <div class="chips" id="lista-temas"></div>
+      <form class="campo" id="form-tema" style="margin-top:26px;max-width:520px">
+        <label for="tema-otro">¿No está tu tema? Escríbelo</label>
+        <div class="en-linea">
+          <input type="text" id="tema-otro" placeholder="Ej.: regla de la cadena" required />
+          <button class="boton boton-secundario" type="submit">Continuar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="etapa" id="et-tutores" aria-labelledby="t-tutores">
+      <h1 id="t-tutores">Tutores para ti</h1>
+      <p class="intro" id="tutores-contexto"></p>
+      <div class="lista-tutores" id="lista-tutores"></div>
+    </section>
+
+    <section class="etapa" id="et-perfil" aria-labelledby="perfil-nombre">
+      <div class="perfil">
+        <div>
+          <div class="perfil-cabeza">
+            <div class="iniciales" id="perfil-iniciales" aria-hidden="true"></div>
+            <div>
+              <h1 id="perfil-nombre"></h1>
+              <p id="perfil-sub"></p>
+            </div>
+          </div>
+          <p class="cita" id="perfil-descripcion"></p>
+          <dl class="datos">
+            <div><dt>Materias que domina</dt><dd id="perfil-materias"></dd></div>
+            <div><dt>Experiencia</dt><dd id="perfil-experiencia"></dd></div>
+            <div><dt>Modalidad</dt><dd id="perfil-modalidad"></dd></div>
+            <div><dt>Horarios</dt><dd id="perfil-horarios"></dd></div>
+            <div><dt>Tutorías realizadas</dt><dd id="perfil-tutorias"></dd></div>
+            <div><dt>Código del tutor</dt><dd><span class="codigo" id="perfil-codigo"></span></dd></div>
+          </dl>
+        </div>
+
+        <aside class="cotizador cuadriculado" aria-labelledby="t-cotizar">
+          <h2 id="t-cotizar">Cotiza tu tutoría</h2>
+          <p>Elige las horas. El cálculo es el mismo que hace Tuti en Telegram.</p>
+          <div class="horas" role="group" aria-label="Horas de tutoría" id="selector-horas">
+            <button type="button" data-horas="1" aria-pressed="true">1 h</button>
+            <button type="button" data-horas="2" aria-pressed="false">2 h</button>
+            <button type="button" data-horas="3" aria-pressed="false">3 h</button>
+            <button type="button" data-horas="4" aria-pressed="false">4 h</button>
+          </div>
+          <dl class="desglose">
+            <div><dt>Valor del tutor</dt><dd id="cot-subtotal"></dd></div>
+            <div><dt>Comisión Mi Tutor (10 %)</dt><dd id="cot-comision"></dd></div>
+            <div class="total"><dt>Total</dt><dd id="cot-total" aria-live="polite"></dd></div>
+          </dl>
+          <a class="boton boton-bloque" id="btn-telegram-tutor" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13 1.4 11.5c-1-.3-1-1 .2-1.5l18.9-7.3c.9-.3 1.6.2 1.4 1.6Z"/></svg>
+            Solicitar en Telegram
+          </a>
+          <p class="nota" id="cot-nota"></p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="etapa" id="et-mis-solicitudes" aria-labelledby="t-mis">
+      <h1 id="t-mis">Mis solicitudes</h1>
+      <p class="intro">Tus solicitudes se guardan en Mi Tutor, no en este navegador. Las consultas desde Telegram, en cualquier dispositivo.</p>
+      <div class="tarjeta-info">
+        <ol>
+          <li>Pulsa el botón y abre el chat con Tuti (pulsa Iniciar si Telegram lo pide).</li>
+          <li>Verás tus últimas solicitudes con su consecutivo, estado y total.</li>
+          <li>Escribe <strong>/pedido SOL-0007</strong> (con tu consecutivo) para ver el detalle y el motivo de una decisión.</li>
+          <li>Para anular una solicitud pendiente, pulsa Cancelar solicitud, escribe el consecutivo y confirma con Sí.</li>
+        </ol>
+        <a class="boton" data-telegram="mis_pedidos" href="https://t.me/MiTutorKevin_bot_bot?start=mis_pedidos">Abrir mis solicitudes en Telegram</a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span>Mi Tutor © <span data-anio></span></span>
+    <span><a href="index.html#evaluanos">Evalúa tu experiencia</a></span>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/estudiante.js"></script>
+</body>
+</html>

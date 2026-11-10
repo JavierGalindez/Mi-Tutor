@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sé tutor — Mi Tutor</title>
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="encabezado">
+  <div class="contenedor">
+    <a href="index.html" class="logo" aria-label="Mi Tutor, inicio">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#F4D35E"/><path d="M9 22V10l7 7 7-7v12" fill="none" stroke="#16233A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Mi Tutor
+    </a>
+    <nav class="navegacion" aria-label="Principal">
+      <a href="index.html#tutores">Tutores</a>
+      <button type="button" id="nav-mi-panel" hidden>Mi panel</button>
+      <a class="boton boton-sm" href="estudiante.html">Necesito un tutor</a>
+    </nav>
+  </div>
+</header>
+
+<main class="flujo">
+  <div class="contenedor">
+
+    <!-- 1. INTRO -->
+    <section class="etapa" id="et-intro" aria-labelledby="t-intro">
+      <h1 id="t-intro" style="font-size:var(--t-3xl);max-width:16ch;letter-spacing:-.03em">Enseña lo que ya dominas y gana dinero haciéndolo.</h1>
+      <p class="intro">Si ya cursaste y aprobaste una materia de Matemáticas, Física o Química, postúlate como tutor. Revisamos cada postulación antes de publicarla para que los estudiantes confíen en ti.</p>
+      <button type="button" class="boton" id="btn-postularme">Empezar mi postulación</button>
+      <div class="beneficios">
+        <div><h3>Recibes el 90 %</h3><p>Mi Tutor cobra una comisión del 10 % al estudiante sobre tu tarifa por hora.</p></div>
+        <div><h3>Tú pones las reglas</h3><p>Defines tu precio, tus horarios y si das clases virtuales, presenciales o ambas.</p></div>
+        <div><h3>Validación en 5 pasos</h3><p>Verificamos tu información académica y tu dominio de las materias.</p></div>
+      </div>
+    </section>
+
+    <!-- 2. POSTULACIÓN -->
+    <section class="etapa" id="et-postulacion" aria-labelledby="t-post">
+      <h1 id="t-post">Formulario de postulación</h1>
+      <p class="intro">Prototipo académico: estos datos se guardan solo en este navegador y no se envían a ningún servidor.</p>
+      <form class="formulario" id="form-postulacion" novalidate>
+        <div class="rejilla-2">
+          <div class="campo"><label for="p-nombre">Nombre completo</label><input id="p-nombre" autocomplete="name" required></div>
+          <div class="campo"><label for="p-correo">Correo</label><input id="p-correo" type="email" autocomplete="email" required></div>
+          <div class="campo"><label for="p-universidad">Universidad</label><input id="p-universidad" required></div>
+          <div class="campo"><label for="p-programa">Programa académico</label><input id="p-programa" required></div>
+          <div class="campo"><label for="p-semestre">Semestre</label>
+            <select id="p-semestre" required><option value="">Selecciona</option>
+              <option>3°</option><option>4°</option><option>5°</option><option>6°</option><option>7°</option>
+              <option>8°</option><option>9°</option><option>10°</option><option>Egresado</option></select></div>
+          <div class="campo"><label for="p-nivel">Nivel de dominio</label>
+            <select id="p-nivel" required><option value="">Selecciona</option>
+              <option>Intermedio</option><option>Avanzado</option><option>Experto</option></select></div>
+        </div>
+        <fieldset>
+          <legend>Materias que dominas</legend>
+          <div id="materias"></div>
+          <p class="error-campo" id="error-materias" role="alert"></p>
+        </fieldset>
+        <div class="rejilla-2">
+          <div class="campo"><label for="p-disponibilidad">Disponibilidad</label><input id="p-disponibilidad" placeholder="Ej.: lunes y miércoles en la tarde" required></div>
+          <div class="campo"><label for="p-modalidad">Modalidad</label>
+            <select id="p-modalidad"><option value="virtual">Virtual</option><option value="presencial">Presencial</option><option value="ambas" selected>Ambas</option></select></div>
+        </div>
+        <div class="campo"><label for="p-experiencia">Experiencia académica</label><span class="ayuda">Monitorías, notas destacadas, olimpiadas o tutorías previas.</span><textarea id="p-experiencia"></textarea></div>
+        <div class="campo"><label for="p-motivacion">¿Por qué quieres ser tutor?</label><textarea id="p-motivacion" required></textarea></div>
+        <p class="error-campo" id="error-form" role="alert"></p>
+        <button type="submit" class="boton">Enviar postulación</button>
+      </form>
+    </section>
+
+    <!-- 3. EVALUACIÓN -->
+    <section class="etapa" id="et-evaluacion" aria-labelledby="t-eval">
+      <h1 id="t-eval">Tu postulación está en revisión</h1>
+      <p class="intro">Estos son los pasos antes de que tu perfil aparezca en Mi Tutor.</p>
+      <ol class="linea-tiempo" id="linea-tiempo"></ol>
+      <button type="button" class="boton boton-secundario" id="btn-avanzar">Simular siguiente paso</button>
+      <button type="button" class="boton" id="btn-ir-panel" hidden>Ir a mi panel</button>
+    </section>
+
+    <!-- 4. PANEL -->
+    <section class="etapa" id="et-panel" aria-labelledby="t-panel">
+      <h1 id="t-panel">Panel del tutor</h1>
+      <p class="intro">¡Postulación aprobada! Ajusta tu perfil público.</p>
+      <div class="panel-rejilla">
+        <form class="panel" id="form-perfil">
+          <h2>Mi perfil</h2>
+          <p id="panel-resumen" style="font-size:var(--t-sm)"></p>
+          <div class="campo"><label for="panel-precio">Tarifa por hora (COP)</label><input type="number" id="panel-precio" min="5000" step="1000" required>
+            <span class="ayuda" id="panel-precio-ayuda"></span></div>
+          <div class="campo"><label for="panel-modalidad">Modalidad</label>
+            <select id="panel-modalidad"><option value="virtual">Virtual</option><option value="presencial">Presencial</option><option value="ambas">Ambas</option></select></div>
+          <div class="campo"><label for="panel-disponibilidad">Disponibilidad</label><input id="panel-disponibilidad"></div>
+          <button class="boton boton-bloque" type="submit" id="btn-guardar">Guardar cambios</button>
+        </form>
+        <div class="panel">
+          <h2>Cómo te llegan las solicitudes</h2>
+          <p>Los estudiantes te eligen en la página o en Telegram y registran una solicitud con consecutivo (por ejemplo SOL-0007). El equipo de Mi Tutor la revisa contigo y la aprueba o la rechaza con un motivo.</p>
+          <p>El estudiante ve la decisión en Mis solicitudes. Mientras la solicitud esté pendiente, él puede cancelarla.</p>
+          <ul class="estados" style="margin-top:16px">
+            <li><span class="pastilla pendiente">Pendiente</span>Esperando la revisión de Mi Tutor contigo.</li>
+            <li><span class="pastilla aprobado">Aprobada</span>Coordina la sesión con el estudiante.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <span>Mi Tutor © <span data-anio></span></span>
+    <button type="button" id="btn-reiniciar">Borrar mi postulación de prueba</button>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/tutor.js"></script>
+</body>
+</html>
