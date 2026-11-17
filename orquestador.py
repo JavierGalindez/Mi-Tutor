@@ -731,7 +731,7 @@ def gestionar_cancelacion(chat_id, comando, partes):
         solicitudes_cancelacion.discard(chat_id)
         confirmaciones_cancelacion.pop(chat_id, None)
         return None
-    elif activo and (limpio in ("no", "no gracias") or comando == "/cancelar"):
+    elif activo and (limpio in ("no", "no gracias") or comando in ("/cancelar", "/volver")):
         solicitudes_cancelacion.discard(chat_id)
         codigo = confirmaciones_cancelacion.pop(chat_id, None)
         if codigo:
@@ -794,28 +794,29 @@ def botones_cliente(chat_id):
     if chat_id in confirmaciones_cancelacion:
         return [["Sí", "No"]]
     if chat_id in solicitudes_cancelacion:
-        return [["No", "Mis solicitudes"]]
+        return [["No", "Mis solicitudes"], [BOTON_VOLVER]]
     sesion = sesiones.get(chat_id) or {}
     seguimiento = ["Mis solicitudes", "Cancelar solicitud"]
+    navegar = [BOTON_VOLVER, BOTON_INICIO]           # NUEVO C3S4: volver sin perder el avance
     if sesion.get("etapa") == "confirmar":
-        return [["Sí, registrar", "No"], ["Cambiar horas", "Cambiar horario"]]
+        return [["Sí, registrar", "No"], ["Cambiar horas", "Cambiar horario"], navegar]
     if sesion.get("etapa") == "franja":
         etiquetas = [f["etiqueta"] for f in FRANJAS[sesion["codigo"]]]
-        return [etiquetas[i:i + 2] for i in range(0, len(etiquetas), 2)] + [["/cancelar"]]
+        return [etiquetas[i:i + 2] for i in range(0, len(etiquetas), 2)] + [navegar]
     if sesion.get("etapa") in ("cantidad", "cantidad_cotizacion"):
         if sesion.get("franja") is not None:
             limite = FRANJAS[sesion["codigo"]][sesion["franja"]]["horas"]
         else:
             limite = max_horas(sesion["codigo"])
-        return [[str(n) for n in range(1, min(limite, 4) + 1)], ["/cancelar"]]
+        return [[str(n) for n in range(1, min(limite, 4) + 1)], navegar]
     if sesion.get("codigo"):
-        return [["Cotizar", "Solicitar tutoría"], seguimiento, ["Ver otros tutores"]]
+        return [["Cotizar", "Solicitar tutoría"], seguimiento, navegar]
     if sesion.get("area"):
         area = AREAS_POR_CODIGO[sesion["area"]]
         tutores = [f"{p['codigo']} — {p['tutor']}" for p in PRODUCTOS.values()
                    if p["area_clave"] == area["clave"]]
         filas = [tutores[i:i + 2] for i in range(0, len(tutores), 2)]
-        return filas + [seguimiento, ["Cambiar de área"]]
+        return filas + [seguimiento, navegar]
     return [[f"{a['emoji']} {a['nombre']}" for a in AREAS], seguimiento]
 
 
@@ -966,6 +967,50 @@ def limpiar_solicitud(sesion):
         sesion.pop(clave, None)
 
 
+# INICIO NUEVO C3S4: navegación del proceso (mejora basada en la encuesta, T01).
+BOTON_VOLVER = "⬅️ Volver"
+BOTON_INICIO = "🏠 Empezar de nuevo"
+PASOS = ["Tutor", "Horario", "Horas", "Confirmar"]
+
+
+def paso(numero):
+    """Encabezado «Paso 2 de 4 · Horario» para que el estudiante sepa dónde está."""
+    marcas = " ".join("●" if i < numero else "○" for i in range(len(PASOS)))
+    return f"Paso {numero} de {len(PASOS)} · {PASOS[numero - 1]}  {marcas}\n\n"
+
+
+def volver(chat_id, nombre):
+    """Retrocede un solo paso y conserva lo ya elegido antes de ese paso."""
+    sesion = sesiones.get(chat_id)
+    if not sesion or (not sesion.get("codigo") and not sesion.get("area")):
+        sesiones.pop(chat_id, None)
+        return "Estás en el inicio. " + bienvenida_general(nombre).split("\n\n", 1)[1]
+    etapa = sesion.get("etapa")
+    codigo = sesion.get("codigo")
+    if etapa == "confirmar":
+        sesion.pop("horas", None)
+        return "⬅️ Volviste a las horas.\n\n" + avanzar_solicitud(sesion)
+    if etapa == "cantidad" and len(FRANJAS[codigo]) > 1:
+        limpiar_solicitud(sesion)
+        return "⬅️ Volviste al horario.\n\n" + avanzar_solicitud(sesion)
+    if etapa in ("franja", "cantidad", "cantidad_cotizacion"):
+        limpiar_solicitud(sesion)
+        sesion["etapa"] = "consulta"
+        p = PRODUCTOS[codigo]
+        return (paso(1) + f"⬅️ Volviste a {p['nombre']}. No se registró nada.\n"
+                "Puedes cotizar, solicitar o elegir otro tutor con ⬅️ Volver.")
+    if codigo:
+        sesion["codigo"] = None
+        sesion["etapa"] = "consulta"
+        limpiar_solicitud(sesion)
+        area = AREAS_POR_CODIGO[sesion["area"]]
+        return (paso(1) + f"⬅️ Volviste a los tutores de {area['emoji']} {area['nombre']}. "
+                "Elige otro con los botones.")
+    sesiones.pop(chat_id, None)
+    return "⬅️ Volviste a las áreas. Elige una con los botones de abajo."
+# FIN NUEVO C3S4
+
+
 def avanzar_solicitud(sesion):
     """Pide lo que falte (horario y horas) y deja la solicitud lista para confirmar."""
     codigo = sesion["codigo"]
@@ -975,7 +1020,7 @@ def avanzar_solicitud(sesion):
         sesion["franja"] = 0
     if sesion.get("franja") is None:
         sesion["etapa"] = "franja"
-        lineas = [f"🗓️ ¿En qué horario quieres la tutoría con {p['tutor']}?"]
+        lineas = [paso(2) + f"🗓️ ¿En qué horario quieres la tutoría con {p['tutor']}?"]
         lineas += [f"• {f['etiqueta']} (hasta {f['horas']} h)" for f in franjas]
         lineas.append("Toca un horario o escribe el día.")
         return "\n".join(lineas)
@@ -984,14 +1029,14 @@ def avanzar_solicitud(sesion):
     if horas and horas > f["horas"]:
         sesion.pop("horas")
         sesion["etapa"] = "cantidad"
-        return (f"⚠️ En el horario {f['etiqueta']} {p['tutor']} solo tiene {f['horas']} "
+        return (paso(3) + f"⚠️ En el horario {f['etiqueta']} {p['tutor']} solo tiene {f['horas']} "
                 f"{UNIDAD} disponibles. ¿Cuántas quieres? (1 a {f['horas']})")
     if not horas:
         sesion["etapa"] = "cantidad"
-        return (f"¿Cuántas {UNIDAD} quieres en el horario {f['etiqueta']}? "
+        return (paso(3) + f"¿Cuántas {UNIDAD} quieres en el horario {f['etiqueta']}? "
                 f"Elige un botón o escribe un número de 1 a {f['horas']}.")
     sesion["etapa"] = "confirmar"
-    return resumen_confirmacion(codigo, horas, f["etiqueta"])
+    return paso(4) + resumen_confirmacion(codigo, horas, f["etiqueta"])
 
 
 def detectar_tutor(limpio):
@@ -1099,11 +1144,16 @@ TEXTO_A_COMANDO = {
     "solicitar tutoria": "/comprar",
     "ver otros tutores": "/otros_tutores",
     "cambiar de area": "/areas",
+    "volver": "/volver",
+    "atras": "/volver",
+    "regresar": "/volver",
+    "empezar de nuevo": "/start",
+    "inicio": "/start",
 }
 ALIAS = {
     "/solicitar": "/comprar", "/mis_solicitudes": "/mis_pedidos",
     "/solicitud": "/pedido", "/cancelar_solicitud": "/cancelar_pedido",
-    "/reiniciar": "/start",
+    "/reiniciar": "/start", "/inicio": "/start", "/atras": "/volver",
 }
 INTENCIONES = {"quiero comprar", "quiero pedir", "comprar", "solicitar",
                "quiero solicitar", "quiero una tutoria", "quiero la tutoria",
@@ -1210,6 +1260,7 @@ def procesar(mensaje, update_id, configuracion=None):
                 "Solicitar tutoría: registra tu solicitud con consecutivo.\n"
                 "Mis solicitudes: estado de tus solicitudes.\n"
                 "Cancelar solicitud: anula una solicitud PENDIENTE.\n"
+                "⬅️ Volver: retrocede un paso sin perder lo que ya elegiste.\n"
                 "/tutores: lista completa · /start: empezar de nuevo")
 
     if comando == "/tutores":
@@ -1241,6 +1292,9 @@ def procesar(mensaje, update_id, configuracion=None):
             return "Estos son los tutores del área. Elige uno con los botones."
         sesiones.pop(chat_id, None)
         return "Elige un área para ver sus tutores."
+
+    if comando == "/volver":
+        return volver(chat_id, nombre)
 
     if comando == "/cancelar":
         if sesion:
@@ -1303,7 +1357,7 @@ def procesar(mensaje, update_id, configuracion=None):
         if not (comando or detectar_tutor(limpio) or detectar_area(limpio)
                 or len(limpio.split()) >= 4):
             return ("Elige uno de los horarios con los botones o escribe el día, "
-                    "por ejemplo «el sábado». Para salir, pulsa /cancelar.")
+                    "por ejemplo «el sábado». Para retroceder, pulsa ⬅️ Volver.")
         sesion["etapa"] = "consulta"             # Cambió de tema: se atiende.
         limpiar_solicitud(sesion)
     # FIN NUEVO C3S2
@@ -1328,11 +1382,11 @@ def procesar(mensaje, update_id, configuracion=None):
         try:
             cantidad = extraer_horas(limpio)
         except ValueError as error:
-            return str(error) + " Para salir, pulsa /cancelar."
+            return str(error) + " Para retroceder, pulsa ⬅️ Volver."
         cambia_tema = detectar_tutor(limpio) or detectar_area(limpio)
         if cantidad is None and len(limpio.split()) < 3 and not cambia_tema:
             return ("Escribe un número entero de horas, por ejemplo «2». "
-                    "Para salir, pulsa /cancelar.")
+                    "Para retroceder, pulsa ⬅️ Volver.")
         if cantidad is not None:
             if sesion["etapa"] == "cantidad_cotizacion":
                 sesion["etapa"] = "consulta"
@@ -1541,7 +1595,8 @@ def ejecutar_bot():
         try:
             await app.bot.set_my_commands([
                 ("start", "Empezar"), ("mis_pedidos", "Mis solicitudes"),
-                ("tutores", "Ver tutores"), ("ayuda", "Ayuda"),
+                ("tutores", "Ver tutores"), ("volver", "Volver un paso"),
+                ("ayuda", "Ayuda"),
             ])
         except Exception as error:
             print("⚠️ Telegram no permitió actualizar el menú de comandos:", error)

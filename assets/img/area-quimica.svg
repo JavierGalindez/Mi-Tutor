@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 150" role="img" aria-labelledby="t">
+  <title id="t">Matraz con una reacción y una molécula de benceno</title>
+  <rect width="320" height="150" fill="#DCF0E8"/>
+  <!-- matraz -->
+  <path d="M92 18h36M100 18v38L60 124a8 8 0 0 0 7 12h86a8 8 0 0 0 7-12L120 56V18" fill="#fff" stroke="#16233A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M76 98h68l12 22a6 6 0 0 1-5 9H69a6 6 0 0 1-5-9z" fill="#23866A"/>
+  <circle cx="98" cy="110" r="5" fill="#fff" fill-opacity=".7"/>
+  <circle cx="120" cy="116" r="3.5" fill="#fff" fill-opacity=".7"/>
+  <circle cx="108" cy="84" r="4" fill="none" stroke="#23866A" stroke-width="2"/>
+  <circle cx="116" cy="70" r="3" fill="none" stroke="#23866A" stroke-width="2"/>
+  <circle cx="104" cy="44" r="2.5" fill="none" stroke="#23866A" stroke-width="2"/>
+  <!-- benceno -->
+  <g transform="translate(232 80)" stroke="#16233A" stroke-width="3" stroke-linejoin="round" fill="none">
+    <path d="M0-40L34.6-20V20L0 40-34.6 20V-20Z" fill="#fff"/>
+    <circle r="20" stroke="#1C7259"/>
+    <path d="M0-40V-58M34.6 20l15 9M-34.6 20l-15 9" stroke-linecap="round"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#16233A">
+    <text x="224" y="16">OH</text>
+    <text x="284" y="118">H</text>
+    <text x="170" y="118">H</text>
+  </g>
+  <!-- ecuación -->
+  <text x="168" y="143" font-family="Georgia, serif" font-size="13" fill="#16233A">2H₂ + O₂ → 2H₂O</text>
+</svg>

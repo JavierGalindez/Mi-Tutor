@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 150" role="img" aria-labelledby="t">
+  <title id="t">Bloque en un plano inclinado con fuerzas y un circuito eléctrico</title>
+  <rect width="320" height="150" fill="#F8E7D9"/>
+  <!-- plano inclinado -->
+  <path d="M24 128H176L24 52Z" fill="#fff" stroke="#16233A" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M150 128a28 28 0 0 0-5-14" fill="none" stroke="#16233A" stroke-width="2"/>
+  <text x="128" y="122" font-family="Georgia, serif" font-style="italic" font-size="15" fill="#16233A">θ</text>
+  <!-- bloque -->
+  <g transform="translate(78 78) rotate(26.6)">
+    <rect x="-20" y="-34" width="40" height="30" rx="3" fill="#C2672A" stroke="#16233A" stroke-width="2.5"/>
+  </g>
+  <!-- fuerzas -->
+  <path d="M74 64V112" stroke="#16233A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M74 118l-6-10h12z" fill="#16233A"/>
+  <text x="80" y="114" font-family="Georgia, serif" font-style="italic" font-size="15" fill="#16233A">mg</text>
+  <path d="M70 66L50 26" stroke="#9E4F1C" stroke-width="3" stroke-linecap="round"/>
+  <path d="M47 19l0.5 12 9-5.5z" fill="#9E4F1C"/>
+  <text x="58" y="32" font-family="Georgia, serif" font-style="italic" font-size="15" fill="#9E4F1C">N</text>
+  <!-- circuito -->
+  <g fill="none" stroke="#16233A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M208 34H292V114H208Z"/>
+  </g>
+  <rect x="226" y="28" width="46" height="12" fill="#F8E7D9"/>
+  <path d="M226 34l6-9 8 18 8-18 8 18 8-18 6 9" fill="none" stroke="#C2672A" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="196" y="62" width="24" height="24" fill="#F8E7D9"/>
+  <path d="M200 66H216M204 80H212" stroke="#16233A" stroke-width="3" stroke-linecap="round"/>
+  <text x="182" y="72" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#16233A">+</text>
+  <circle cx="292" cy="74" r="12" fill="#F4D35E" stroke="#16233A" stroke-width="2.5"/>
+  <path d="M286 74h12M292 68v12" stroke="#16233A" stroke-width="2" stroke-linecap="round" transform="rotate(45 292 74)"/>
+  <!-- onda -->
+  <path d="M206 134c8-12 16-12 24 0s16 12 24 0 16-12 24 0" fill="none" stroke="#9E4F1C" stroke-width="3" stroke-linecap="round"/>
+</svg>

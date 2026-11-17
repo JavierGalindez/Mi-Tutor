@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 150" role="img" aria-labelledby="t">
+  <title id="t">Gráfica de una función con su recta tangente sobre papel cuadriculado</title>
+  <defs>
+    <pattern id="grid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M16 0H0V16" fill="none" stroke="#345A9E" stroke-opacity=".12" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="320" height="150" fill="#E3EAF6"/>
+  <rect width="320" height="150" fill="url(#grid)"/>
+  <!-- ejes -->
+  <path d="M40 122H292M64 136V18" stroke="#16233A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M292 122l-7-4v8zM64 18l-4 7h8z" fill="#16233A"/>
+  <!-- área bajo la curva (integral) -->
+  <path d="M120 122V93C140 74 160 62 180 57V122Z" fill="#345A9E" fill-opacity=".18"/>
+  <!-- curva -->
+  <path d="M64 118C110 108 150 64 200 52S270 40 292 36" fill="none" stroke="#345A9E" stroke-width="4" stroke-linecap="round"/>
+  <!-- tangente -->
+  <path d="M120 112L262 30" stroke="#F4D35E" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="186" cy="74" r="7" fill="#fff" stroke="#16233A" stroke-width="3"/>
+  <!-- notación -->
+  <text x="212" y="112" font-family="Georgia, serif" font-style="italic" font-size="22" fill="#16233A">f′(x)</text>
+  <text x="84" y="44" font-family="Georgia, serif" font-size="34" fill="#16233A">∫</text>
+  <text x="100" y="46" font-family="Georgia, serif" font-style="italic" font-size="18" fill="#16233A">dx</text>
+  <!-- lápiz -->
+  <g transform="translate(250 92) rotate(-35)">
+    <rect x="0" y="0" width="54" height="11" rx="2" fill="#F4D35E" stroke="#16233A" stroke-width="2"/>
+    <path d="M54 0l13 5.5-13 5.5z" fill="#fff" stroke="#16233A" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="-8" y="0" width="8" height="11" rx="2" fill="#F7B6B0" stroke="#16233A" stroke-width="2"/>
+  </g>
+</svg>

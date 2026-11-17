@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mi Tutor — Tutorías de estudiante a estudiante</title>
+<title>Mi Tutor — Tutorías de ciencias básicas entre estudiantes</title>
 <meta name="description" content="Tutorías de Matemáticas, Física y Química con estudiantes que ya dominan la materia. Cotiza y solicita por Telegram." />
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+<a class="saltar" href="#contenido">Saltar al contenido</a>
 
 <header class="encabezado">
   <div class="contenedor">
@@ -19,165 +20,217 @@
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#F4D35E"/><path d="M9 22V10l7 7 7-7v12" fill="none" stroke="#16233A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Mi Tutor
     </a>
-    <nav class="navegacion" aria-label="Principal">
+    <button type="button" class="menu-boton" aria-expanded="false" aria-controls="menu-principal">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>Menú</span>
+    </button>
+    <nav class="navegacion" id="menu-principal" aria-label="Principal">
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#tutores">Tutores</a>
+      <a href="#preguntas">Preguntas</a>
       <a href="tutor.html">Ser tutor</a>
       <a class="boton boton-sm" href="estudiante.html">Necesito un tutor</a>
     </nav>
   </div>
 </header>
 
-<main>
-  <!-- HERO: la conversación real con Tuti -->
-  <section class="hero">
+<main id="contenido" tabindex="-1">
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="titulo-hero">
     <div class="contenedor hero-rejilla">
       <div>
-        <h1>Aprende con estudiantes que ya dominan lo que necesitas.</h1>
-        <p class="entrada">Tutorías de Matemáticas, Física y Química con compañeros que ya cursaron la materia. Eliges tutor, cotizas y registras tu solicitud desde Telegram en menos de un minuto.</p>
+        <h1 id="titulo-hero">Aprende con estudiantes que ya dominan lo que necesitas.</h1>
+        <p class="entrada">Tutorías de Matemáticas, Física y Química con compañeros que ya cursaron la materia. Elige tutor, cotiza y registra tu solicitud desde Telegram en menos de un minuto.</p>
 
         <div class="hero-acciones">
-          <!-- Botón general del asistente: /start inicio -->
-          <a class="boton" data-telegram="inicio" href="https://t.me/MiTutorKevin_bot_bot?start=inicio">
+          <a class="boton boton-grande" data-telegram="inicio" href="#">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13 1.4 11.5c-1-.3-1-1 .2-1.5l18.9-7.3c.9-.3 1.6.2 1.4 1.6Z"/></svg>
             Hablar con Tuti en Telegram
           </a>
-          <!-- NUEVO SEMANA 03: Mis solicitudes debajo del asistente (/start mis_pedidos) -->
-          <a class="boton boton-suave" data-telegram="mis_pedidos" href="https://t.me/MiTutorKevin_bot_bot?start=mis_pedidos">Mis solicitudes</a>
-          <small>Consulta el estado de tus solicitudes o cancela una pendiente.</small>
+          <!-- Mis solicitudes debajo del asistente (/start mis_pedidos) -->
+          <a class="boton boton-suave boton-grande" data-telegram="mis_pedidos" href="#">Mis solicitudes</a>
         </div>
+        <p class="ayuda-hero">Escríbele como en cualquier chat, por ejemplo: «necesito ayuda con Cálculo I».<span class="visualmente-oculto"> Los enlaces abren Telegram en una pestaña nueva.</span></p>
 
-        <div class="hero-datos">
-          <div><strong>8</strong>tutores validados</div>
-          <div><strong>$16.500</strong>la hora más económica</div>
-          <div><strong>4,7</strong>calificación promedio</div>
-        </div>
+        <dl class="hero-datos">
+          <div><dt>Tutores validados</dt><dd>8</dd></div>
+          <div><dt>Desde, por hora</dt><dd>$16.500</dd></div>
+          <div><dt>Calificación promedio</dt><dd>4,7</dd></div>
+        </dl>
       </div>
 
-      <div class="cuaderno cuadriculado" aria-label="Ejemplo de conversación con Tuti en Telegram">
-        <div class="cuaderno-cabecera">
-          <div class="avatar-bot"><svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><path d="M9 22V10l7 7 7-7v12" fill="none" stroke="#F4D35E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div><strong>Tuti, asistente de Mi Tutor</strong><span>en línea</span></div>
+      <figure class="ventana-chat" aria-label="Ejemplo de conversación con Tuti en Telegram">
+        <div class="ventana-barra">
+          <div class="avatar-bot" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 32 32"><path d="M9 22V10l7 7 7-7v12" fill="none" stroke="#F4D35E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><strong>Tuti</strong><span>asistente de Mi Tutor</span></div>
         </div>
-        <div class="chat">
-          <p class="burbuja estudiante">Quiero tutoría de Cálculo I con Laura</p>
-          <p class="burbuja bot">¡Hola, Kevin! Laura Gómez explica derivadas paso a paso. La hora cuesta $19.800 con la comisión incluida.</p>
-          <p class="burbuja estudiante">Solicitar tutoría</p>
-          <p class="burbuja bot">¿Cuántas horas quieres? Lo que dure el horario que elijas si el tutor atiende «Lun 3–6pm», puedes pedir de 1 a 3 horas ese día. El total es horas × (precio por hora del tutor + 10 %).</p>
-          <p class="burbuja estudiante">2</p>
-          <p class="burbuja bot recibo">Solicitud <span class="marcado">SOL-0007</span> registrada.<br>Total $39.600. Estado: pendiente de aprobación.</p>
+        <div class="chat cuadriculado">
+          <p class="burbuja estudiante">Necesito ayuda con Cálculo I</p>
+          <p class="burbuja bot">Te puedo conectar con Laura Gómez: explica derivadas paso a paso. $19.800 la hora, comisión incluida.</p>
+          <p class="burbuja estudiante">Quiero 2 horas con Laura</p>
+          <p class="burbuja bot">Revisa tu solicitud: 2 horas con Laura, total $39.600. ¿La registro?</p>
+          <p class="burbuja estudiante">Sí, registrar</p>
+          <p class="burbuja bot recibo">Solicitud <span class="marcado">SOL-0007</span> registrada. Estado: pendiente de aprobación.</p>
         </div>
-        <div class="teclado-falso" aria-hidden="true"><span>Mis solicitudes</span><span>Cancelar solicitud</span></div>
-      </div>
+        <figcaption class="visualmente-oculto">Conversación de ejemplo: el estudiante pide 2 horas de Cálculo I con Laura Gómez y recibe el consecutivo SOL-0007.</figcaption>
+      </figure>
     </div>
   </section>
 
-  <!-- CÓMO FUNCIONA: secuencia real del recorrido -->
-  <section class="seccion-pagina borde" id="como-funciona">
+  <!-- CÓMO FUNCIONA -->
+  <section class="seccion-pagina borde" id="como-funciona" aria-labelledby="titulo-pasos">
     <div class="contenedor">
       <div class="cabeza-seccion">
-        <h2>Así se pide una tutoría</h2>
+        <h2 id="titulo-pasos">Así se pide una tutoría</h2>
         <p>Todo ocurre en un chat con Tuti. Los precios los calcula el sistema con la tarifa oficial de cada tutor.</p>
       </div>
       <ol class="pasos">
-        <li><h3>Elige área o tutor</h3><p>Abre un área o el perfil de un tutor en esta página. El botón te lleva a Telegram con tu elección ya cargada.</p></li>
-        <li><h3>Cotiza y pregunta</h3><p>Pregúntale a Tuti por horarios o temas. Con Cotizar ves el total sin registrar nada.</p></li>
-        <li><h3>Solicita y haz seguimiento</h3><p>Indica las horas y recibe un consecutivo como SOL-0007. En Mis solicitudes ves si fue aprobada.</p></li>
+        <li><h3>Elige área o tutor</h3><p>Abre un área o el perfil de un tutor. El botón te lleva a Telegram con tu elección ya cargada.</p></li>
+        <li><h3>Pregunta y cotiza</h3><p>Escríbele a Tuti como en cualquier chat. Pregunta horarios o temas y conoce el total sin registrar nada.</p></li>
+        <li><h3>Confirma y haz seguimiento</h3><p>Di cuántas horas quieres, confirma y recibe un consecutivo como SOL-0007. En Mis solicitudes ves su estado.</p></li>
       </ol>
     </div>
   </section>
 
   <!-- ÁREAS -->
-  <section class="seccion-pagina borde" id="areas">
+  <section class="seccion-pagina borde" id="areas" aria-labelledby="titulo-areas">
     <div class="contenedor">
       <div class="cabeza-seccion">
-        <h2>Tres áreas de ciencias básicas</h2>
+        <h2 id="titulo-areas">Tres áreas de ciencias básicas</h2>
         <p>¿No sabes qué tutor elegir? Entra por el área y Tuti te recomienda según tu asignatura y tu horario.</p>
       </div>
       <div class="areas">
         <article class="area">
-          <div class="area-simbolo" aria-hidden="true">∑</div>
+          <img class="area-ilustracion" src="assets/img/area-matematicas.svg" alt="" width="320" height="150" loading="lazy">
           <h3>Matemáticas</h3>
           <p>De matemáticas básicas a ecuaciones diferenciales.</p>
-          <ul><li>Cálculo I, II y III</li><li>Álgebra lineal</li><li>Estadística</li><li>Probabilidad</li></ul>
-          <a class="boton" data-telegram="TUT-MAT" href="https://t.me/MiTutorKevin_bot_bot?start=TUT-MAT">Buscar tutor de Matemáticas</a>
+          <ul aria-label="Asignaturas de Matemáticas"><li>Cálculo I, II y III</li><li>Álgebra lineal</li><li>Estadística</li><li>Probabilidad</li></ul>
+          <a class="boton" data-telegram="TUT-MAT" href="#">Buscar tutor de Matemáticas</a>
         </article>
         <article class="area fisica">
-          <div class="area-simbolo" aria-hidden="true">F</div>
+          <img class="area-ilustracion" src="assets/img/area-fisica.svg" alt="" width="320" height="150" loading="lazy">
           <h3>Física</h3>
           <p>Mecánica, electromagnetismo y termodinámica con ejercicios resueltos.</p>
-          <ul><li>Física I, II y III</li><li>Circuitos</li><li>Mecánica</li><li>Termodinámica</li></ul>
-          <a class="boton" data-telegram="TUT-FIS" href="https://t.me/MiTutorKevin_bot_bot?start=TUT-FIS">Buscar tutor de Física</a>
+          <ul aria-label="Asignaturas de Física"><li>Física I, II y III</li><li>Circuitos</li><li>Mecánica</li><li>Termodinámica</li></ul>
+          <a class="boton" data-telegram="TUT-FIS" href="#">Buscar tutor de Física</a>
         </article>
         <article class="area quimica">
-          <div class="area-simbolo" aria-hidden="true">H₂O</div>
+          <img class="area-ilustracion" src="assets/img/area-quimica.svg" alt="" width="320" height="150" loading="lazy">
           <h3>Química</h3>
           <p>General, orgánica e inorgánica, con ejemplos de la vida diaria.</p>
-          <ul><li>Química general</li><li>Orgánica</li><li>Estequiometría</li><li>Inorgánica</li></ul>
-          <a class="boton" data-telegram="TUT-QUI" href="https://t.me/MiTutorKevin_bot_bot?start=TUT-QUI">Buscar tutor de Química</a>
+          <ul aria-label="Asignaturas de Química"><li>Química general</li><li>Orgánica</li><li>Estequiometría</li><li>Inorgánica</li></ul>
+          <a class="boton" data-telegram="TUT-QUI" href="#">Buscar tutor de Química</a>
         </article>
       </div>
     </div>
   </section>
 
   <!-- CATÁLOGO DE TUTORES (códigos TUT-XX iguales a tutores.py) -->
-  <section class="seccion-pagina borde" id="tutores">
+  <section class="seccion-pagina borde" id="tutores" aria-labelledby="titulo-tutores">
     <div class="contenedor">
       <div class="cabeza-seccion">
-        <h2>Tutores disponibles</h2>
+        <h2 id="titulo-tutores">Tutores disponibles</h2>
         <p>Cada tutor ya cursó y aprobó la materia que enseña, y su postulación fue validada. El precio incluye el 10 % de comisión de Mi Tutor.</p>
       </div>
       <div class="directorio">
-        <div class="filtro-areas" role="group" aria-label="Filtrar por área">
+        <!-- MEJORA PROPIA C3S4: buscador de tutores por asignatura, modalidad y día -->
+        <form class="buscador" id="buscador-tutores" role="search" aria-label="Buscar tutores" onsubmit="return false">
+          <div class="buscador-campo buscador-texto">
+            <label for="buscar-materia">Asignatura o tema</label>
+            <input id="buscar-materia" type="search" list="lista-materias" placeholder="Ej.: Cálculo I, circuitos, orgánica" autocomplete="off">
+            <datalist id="lista-materias"></datalist>
+          </div>
+          <div class="buscador-campo">
+            <label for="buscar-modalidad">Modalidad</label>
+            <select id="buscar-modalidad">
+              <option value="">Cualquiera</option>
+              <option value="virtual">Virtual</option>
+              <option value="presencial">Presencial</option>
+            </select>
+          </div>
+          <div class="buscador-campo">
+            <label for="buscar-dia">Día</label>
+            <select id="buscar-dia">
+              <option value="">Cualquier día</option>
+              <option value="lun">Lunes</option><option value="mar">Martes</option><option value="mie">Miércoles</option>
+              <option value="jue">Jueves</option><option value="vie">Viernes</option><option value="sab">Sábado</option>
+            </select>
+          </div>
+        </form>
+        <div class="filtro-areas" role="group" aria-label="Filtrar tutores por área">
           <button type="button" data-filtro="todas" aria-pressed="true">Todas las áreas</button>
           <button type="button" data-filtro="matematicas" aria-pressed="false">Matemáticas</button>
           <button type="button" data-filtro="fisica" aria-pressed="false">Física</button>
           <button type="button" data-filtro="quimica" aria-pressed="false">Química</button>
+          <span class="conteo" id="conteo-tutores" aria-live="polite"></span>
         </div>
         <div id="lista-directorio"></div>
+        <div class="sin-resultados" id="sin-resultados" hidden>
+          <p><strong>Ningún tutor coincide con esa búsqueda.</strong> Prueba otro día u otra modalidad, o escribe la asignatura con otras palabras.</p>
+          <button type="button" class="boton boton-suave boton-sm" id="limpiar-busqueda">Limpiar búsqueda</button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- SEGUIMIENTO: estados del proceso (Guía 04) -->
-  <section class="seccion-pagina borde" id="seguimiento">
+  <!-- SEGUIMIENTO -->
+  <section class="seccion-pagina borde" id="seguimiento" aria-labelledby="titulo-seguimiento">
     <div class="contenedor seguimiento">
       <div>
-        <h2>Tu solicitud, siempre a la vista</h2>
+        <h2 id="titulo-seguimiento">Tu solicitud, siempre a la vista</h2>
         <p>Cada solicitud queda guardada con su consecutivo, aunque cierres Telegram. El equipo de Mi Tutor la revisa con el tutor y tú consultas el resultado cuando quieras.</p>
-        <p>Mientras siga pendiente, puedes cancelarla: pulsa Cancelar solicitud en el chat, escribe el consecutivo y confirma con Sí.</p>
+        <p>Mientras siga pendiente, puedes cancelarla: toca Cancelar solicitud en el chat, escribe el consecutivo y confirma.</p>
         <div class="acciones-seguimiento">
-          <a class="boton" data-telegram="mis_pedidos" href="https://t.me/MiTutorKevin_bot_bot?start=mis_pedidos">Ver mis solicitudes</a>
+          <a class="boton" data-telegram="mis_pedidos" href="#">Ver mis solicitudes</a>
         </div>
       </div>
-      <ul class="estados">
+      <ul class="estados" aria-label="Estados de una solicitud">
         <li><span class="pastilla pendiente">Pendiente</span>Registrada y en revisión. Aún puedes cancelarla desde el chat.</li>
-        <li><span class="pastilla aprobado">Aprobada</span>El tutor y Mi Tutor aceptaron la solicitud. Ya no se cancela desde el bot.</li>
+        <li><span class="pastilla aprobado">Aprobada</span>El tutor y Mi Tutor aceptaron la solicitud. Ya no se cancela desde el chat.</li>
         <li><span class="pastilla no-aprobado">No aprobada</span>No fue posible atenderla. Verás el motivo en el detalle.</li>
-        <li><span class="pastilla cancelado">Cancelada</span>Anulada por ti o por el equipo mientras estaba pendiente. Su historial se conserva.</li>
+        <li><span class="pastilla cancelado">Cancelada</span>Anulada mientras estaba pendiente. Su historial se conserva.</li>
       </ul>
     </div>
   </section>
 
-  <!-- SER TUTOR -->
-  <section class="seccion-pagina">
-    <div class="contenedor">
-      <div class="banda-tutor">
-        <div>
-          <h2>¿Dominas una materia? Enséñala y gana dinero</h2>
-          <p>Postúlate como tutor. Tú defines tu precio, tu horario y si das clases virtuales o presenciales.</p>
-          <a class="boton boton-claro" href="tutor.html">Postularme como tutor</a>
-        </div>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="#F4D35E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Recibes el 90 % del valor de cada tutoría.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="#F4D35E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Horarios flexibles que se ajustan a tu semestre.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="#F4D35E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Validación académica para que los estudiantes confíen en ti.</li>
-        </ul>
+  <!-- PREGUNTAS FRECUENTES (mismo contenido que conoce Tuti) -->
+  <section class="seccion-pagina borde" id="preguntas" aria-labelledby="titulo-preguntas">
+    <div class="contenedor preguntas">
+      <div class="cabeza-seccion">
+        <h2 id="titulo-preguntas">Preguntas frecuentes</h2>
+        <p>Si tu duda no está aquí, pregúntale a Tuti en Telegram.</p>
+      </div>
+      <div class="acordeon">
+        <details><summary>¿Cuánto cuesta una tutoría?</summary><p>Cada tutor define su precio por hora, entre $15.000 y $20.000. A ese valor se suma la comisión del 10 % de Mi Tutor. Por ejemplo, 1 hora con un tutor de $18.000 cuesta $19.800.</p></details>
+        <details><summary>¿Cuántas horas puedo pedir?</summary><p>Horas enteras, hasta lo que dure el horario que elijas: si el tutor atiende «Lun 3–6pm», puedes pedir de 1 a 3 horas ese día. El total es horas × (precio por hora del tutor + 10 %).</p></details>
+        <details><summary>¿Las tutorías son virtuales o presenciales?</summary><p>Depende del tutor: algunos solo dan clases virtuales, otros solo presenciales y otros ambas. La modalidad aparece en cada perfil.</p></details>
+        <details><summary>¿Quiénes son los tutores?</summary><p>Estudiantes universitarios que ya cursaron y dominan la materia. Su postulación se valida antes de aparecer en Mi Tutor.</p></details>
+        <details><summary>¿Puedo cancelar una solicitud?</summary><p>Sí, mientras esté pendiente. En el chat toca Cancelar solicitud, escribe el consecutivo (por ejemplo SOL-0007) y confirma con Sí.</p></details>
+        <details><summary>¿Cómo se paga?</summary><p>Mi Tutor es un prototipo académico y por ahora no procesa pagos en línea. La solicitud registra la tutoría y su valor para que el equipo la revise.</p></details>
       </div>
     </div>
   </section>
 
-  <!-- NUEVO CORTE 03: evaluación del usuario -->
+  <!-- SER TUTOR -->
+  <section class="seccion-pagina" aria-labelledby="titulo-ser-tutor">
+    <div class="contenedor">
+      <div class="banda-tutor">
+        <div>
+          <h2 id="titulo-ser-tutor">¿Dominas una materia? Enséñala y gana dinero</h2>
+          <p>Postúlate como tutor. Tú defines tu precio, tu horario y si das clases virtuales o presenciales.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#F4D35E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Recibes el 90 % del valor de cada tutoría.</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#F4D35E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Horarios flexibles que se ajustan a tu semestre.</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="#F4D35E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Validación académica para que los estudiantes confíen en ti.</li>
+          </ul>
+          <a class="boton boton-claro" href="tutor.html">Postularme como tutor</a>
+        </div>
+        <img class="banda-ilustracion" src="assets/img/ser-tutor.svg" alt="Una tutora explica una derivada en el tablero a un estudiante" width="360" height="240" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- CORTE 03: evaluación del usuario -->
   <section class="seccion-pagina" style="padding-top:0">
     <div class="contenedor">
       <section id="evaluanos" class="evaluacion-mvp cuadriculado" aria-labelledby="titulo-evaluacion">
@@ -186,42 +239,106 @@
           <p>Tu opinión nos ayuda a mejorar Mi Tutor. Esta es una prueba académica: no implica pagos ni tutorías reales.</p>
           <p class="nota">Son 8 preguntas cortas. No pedimos nombre, correo ni teléfono.</p>
         </div>
-        <!-- ADAPTAR A SU MVP: sustituya https://docs.google.com/forms/d/e/1FAIpQLSffaPs3clTbqdqUvY3jMdMLyRy0T6xYu6D17mGsudJDkME16Q/viewform por el enlace real de Google Forms -->
-        <a class="boton" href="https://docs.google.com/forms/d/e/1FAIpQLSffaPs3clTbqdqUvY3jMdMLyRy0T6xYu6D17mGsudJDkME16Q/viewform" target="_blank" rel="noopener noreferrer">Responder evaluación</a>
+        <!-- El enlace se configura en js/app.js (MT_FORMULARIO) -->
+        <a class="boton boton-grande" data-formulario href="URL_FORMULARIO" target="_blank" rel="noopener noreferrer">Responder evaluación<span class="visualmente-oculto"> (abre en una pestaña nueva)</span></a>
       </section>
     </div>
   </section>
 </main>
 
 <footer class="pie">
-  <div class="contenedor">
-    <span>Mi Tutor © <span data-anio></span>. Tutorías de ciencias básicas de estudiante a estudiante.</span>
-    <span><a href="estudiante.html">Necesito un tutor</a> &nbsp; <a href="tutor.html">Ser tutor</a> &nbsp; <a href="#evaluanos">Evalúa tu experiencia</a></span>
+  <div class="contenedor pie-rejilla">
+    <div>
+      <a href="index.html" class="logo logo-pie" aria-label="Mi Tutor, inicio">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#F4D35E"/><path d="M9 22V10l7 7 7-7v12" fill="none" stroke="#16233A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Mi Tutor
+      </a>
+      <p>Tutorías de ciencias básicas de estudiante a estudiante. Prototipo académico, Electiva Administrativa 2026-II.</p>
+    </div>
+    <nav aria-label="Estudiantes">
+      <h2>Estudiantes</h2>
+      <a href="estudiante.html">Necesito un tutor</a>
+      <a href="#tutores">Ver tutores</a>
+      <a data-telegram="mis_pedidos" href="#">Mis solicitudes</a>
+    </nav>
+    <nav aria-label="Más">
+      <h2>Más</h2>
+      <a href="tutor.html">Ser tutor</a>
+      <a href="#preguntas">Preguntas frecuentes</a>
+      <a href="#evaluanos">Evalúa tu experiencia</a>
+    </nav>
   </div>
+  <div class="contenedor pie-legal">Mi Tutor © <span data-anio></span></div>
 </footer>
 
 <script src="js/app.js"></script>
 <script>
-  /* Directorio de tutores con filtro por área */
+  /* Directorio de tutores: filtro por área + buscador (mejora propia C3S4) */
   (function () {
     const lista = document.getElementById("lista-directorio");
     const conteo = document.getElementById("conteo-tutores");
-    MT_TUTORES.forEach((t) => lista.appendChild(mtFilaTutor(t)));
+    const vacio = document.getElementById("sin-resultados");
+    const campoMateria = document.getElementById("buscar-materia");
+    const campoModalidad = document.getElementById("buscar-modalidad");
+    const campoDia = document.getElementById("buscar-dia");
+    const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    let area = "todas";
+
+    /* Filas del catálogo, con los horarios visibles para poder elegir día. */
+    MT_TUTORES.forEach((t) => {
+      const fila = mtFilaTutor(t);
+      const meta = fila.querySelector(".meta");
+      const horarios = document.createElement("span");
+      horarios.className = "horarios";
+      horarios.textContent = "Horarios: " + t.disponibilidad.join(", ");
+      meta.appendChild(horarios);
+      lista.appendChild(fila);
+    });
+
+    /* Sugerencias del campo de búsqueda: todas las asignaturas que se dictan. */
+    const materias = [...new Set(MT_TUTORES.flatMap((t) => t.asignaturas))].sort((a, b) => a.localeCompare(b, "es"));
+    document.getElementById("lista-materias").innerHTML = materias.map((m) => `<option value="${mtEscapar(m)}">`).join("");
+
+    function coincide(t) {
+      if (area !== "todas" && t.area !== area) return false;
+      const q = norm(campoMateria.value);
+      if (q) {
+        const texto = norm([t.nombre, ...t.asignaturas, MT_AREAS[t.area].label].join(" "));
+        if (!q.split(/\s+/).every((palabra) => texto.includes(palabra))) return false;
+      }
+      const mod = campoModalidad.value;
+      if (mod && t.modalidad !== mod && t.modalidad !== "ambas") return false;
+      const dia = campoDia.value;
+      if (dia && !t.disponibilidad.some((h) => norm(h).startsWith(dia))) return false;
+      return true;
+    }
+
+    function aplicar() {
+      let visibles = 0;
+      lista.querySelectorAll(".fila-tutor").forEach((fila, i) => {
+        const ok = coincide(MT_TUTORES[i]);
+        fila.hidden = !ok;
+        fila.style.display = ok ? "" : "none";  /* .fila-tutor usa display:grid */
+        if (ok) visibles++;
+      });
+      conteo.textContent = visibles === 1 ? "1 tutor" : visibles + " tutores";
+      vacio.hidden = visibles > 0;
+    }
+
     document.querySelectorAll("[data-filtro]").forEach((boton) => {
       boton.addEventListener("click", () => {
-        const filtro = boton.dataset.filtro;
+        area = boton.dataset.filtro;
         document.querySelectorAll("[data-filtro]").forEach((b) => b.setAttribute("aria-pressed", String(b === boton)));
-        let visibles = 0;
-        lista.querySelectorAll(".fila-tutor").forEach((fila) => {
-          const oculta = filtro !== "todas" && fila.dataset.area !== filtro;
-          fila.hidden = oculta;
-          /* El CSS de .fila-tutor (display:grid) anula [hidden]: se oculta explícitamente. */
-          fila.style.display = oculta ? "none" : "";
-          if (!oculta) visibles++;
-        });
-        conteo.textContent = visibles + " tutores visibles";
+        aplicar();
       });
     });
+    [campoMateria, campoModalidad, campoDia].forEach((c) => c.addEventListener("input", aplicar));
+    document.getElementById("limpiar-busqueda").addEventListener("click", () => {
+      campoMateria.value = ""; campoModalidad.value = ""; campoDia.value = ""; area = "todas";
+      document.querySelectorAll("[data-filtro]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.filtro === "todas")));
+      aplicar(); campoMateria.focus();
+    });
+    aplicar();
   })();
 </script>
 </body>

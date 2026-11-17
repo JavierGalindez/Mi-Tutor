@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" role="img" aria-labelledby="t">
+  <title id="t">Una tutora explica una derivada en el tablero a un estudiante que toma apuntes</title>
+  <!-- tablero -->
+  <rect x="24" y="20" width="210" height="122" rx="10" fill="#1D6B53"/>
+  <rect x="24" y="20" width="210" height="122" rx="10" fill="none" stroke="#F4D35E" stroke-width="2" stroke-opacity=".5"/>
+  <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+    <path d="M48 112H210M60 124V40"/>
+    <path d="M60 110C96 104 120 64 160 56S196 50 210 48" stroke="#F4D35E"/>
+  </g>
+  <text x="120" y="102" font-family="Georgia, serif" font-style="italic" font-size="20" fill="#fff">dy/dx</text>
+  <!-- tutora -->
+  <g>
+    <path d="M236 230c0-44 14-74 40-74s40 30 40 74z" fill="#F4D35E"/>
+    <circle cx="300" cy="136" r="12" fill="#9B5B34"/>
+    <circle cx="278" cy="120" r="27" fill="#9B5B34"/>
+    <circle cx="274" cy="128" r="22" fill="#E8B48F"/>
+    <path d="M252 118c4-16 16-22 28-20 10 2 18 10 18 20-14-8-30-8-46 0z" fill="#9B5B34"/>
+    <!-- brazo señalando -->
+    <path d="M250 180L214 118" stroke="#F4D35E" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="212" cy="114" r="8" fill="#E8B48F"/>
+  </g>
+  <!-- estudiante -->
+  <g>
+    <path d="M40 240c0-36 14-58 38-58s38 22 38 58z" fill="#345A9E"/>
+    <circle cx="78" cy="160" r="20" fill="#C98A63"/>
+    <path d="M58 156c2-16 12-22 22-22s20 8 18 22c-10-6-28-8-40 0z" fill="#6B4428"/>
+  </g>
+  <!-- mesa y cuaderno -->
+  <rect x="96" y="206" width="150" height="10" rx="3" fill="#fff" fill-opacity=".9"/>
+  <path d="M118 206l8-16h56l-8 16z" fill="#fff" stroke="#16233A" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M136 198h30M140 193h24" stroke="#345A9E" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -7,12 +7,16 @@
 #   - 10 solicitudes por página; las estadísticas usan TODO el filtro.
 #   - Detalle con historial y decisiones (aprobar, no aprobar,
 #     cancelar) enviadas por POST con token temporal.
+#   - NUEVO C3S4: al aprobar, no aprobar o cancelar, el estudiante
+#     recibe un aviso en Telegram (pedido en la encuesta).
 #
 # Solo funciona en ESTE computador: http://127.0.0.1:8000
 # No agregue esta dirección a la página pública.
 # Todas las herramientas usadas aquí vienen con Python.
 # ============================================================
+import json
 import secrets
+import urllib.request
 from collections import Counter
 from html import escape
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -20,7 +24,7 @@ from math import ceil
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from orquestador import (
-    COMISION, DB, ESTADOS, NOMBRE_NEGOCIO, PREFIJO, PRODUCTOS,
+    BASE, COMISION, DB, ESTADOS, NOMBRE_NEGOCIO, PREFIJO, PRODUCTOS,
     cambiar_estado, consultar, historial, iniciar_db, pesos,
 )
 
@@ -35,6 +39,55 @@ CLASE_ESTADO = {
     "PENDIENTE": "pendiente", "APROBADO": "aprobado",
     "NO APROBADO": "no-aprobado", "CANCELADO": "cancelado",
 }
+
+
+# ========================================================
+# NUEVO C3S4: AVISO AL ESTUDIANTE POR TELEGRAM
+# ========================================================
+def token_telegram():
+    """Lee TELEGRAM_TOKEN del archivo .env (el mismo que usa el bot)."""
+    try:
+        for linea in (BASE / ".env").read_text(encoding="utf-8").splitlines():
+            clave, _, valor = linea.partition("=")
+            if clave.strip() == "TELEGRAM_TOKEN":
+                return valor.strip().strip('"').strip("'")
+    except OSError:
+        pass
+    return ""
+
+
+def texto_aviso(p):
+    """Mensaje para el estudiante según la decisión del administrador."""
+    detalle = (f"👩‍🏫 {p['nombre_producto']}\n"
+               f"Horas: {p['cantidad']} · Total: {pesos(p['total'])}")
+    if p["estado"] == "APROBADO":
+        return (f"✅ ¡Buenas noticias! Tu solicitud {p['consecutivo']} fue APROBADA.\n\n"
+                f"{detalle}\n\nTu tutoría quedó confirmada en el horario que elegiste. "
+                "Puedes verla en Mis solicitudes.")
+    if p["estado"] == "NO APROBADO":
+        return (f"❌ Tu solicitud {p['consecutivo']} no fue aprobada.\n\n{detalle}\n"
+                f"Motivo: {p['motivo']}\n\nPuedes pedir otro horario u otro tutor "
+                "escribiéndome cuando quieras.")
+    return (f"🚫 Tu solicitud {p['consecutivo']} fue cancelada por el administrador.\n\n"
+            f"{detalle}\nMotivo: {p['motivo']}")
+
+
+def avisar_estudiante(p):
+    """Envía el aviso. Devuelve True si Telegram lo recibió; nunca detiene el panel."""
+    token = token_telegram()
+    if not token:
+        print("⚠️ Sin TELEGRAM_TOKEN en .env: no se envió el aviso.")
+        return False
+    datos = json.dumps({"chat_id": p["chat_id"], "text": texto_aviso(p)}).encode("utf-8")
+    pedido = urllib.request.Request(
+        f"https://api.telegram.org/bot{token}/sendMessage", data=datos,
+        headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(pedido, timeout=10) as respuesta:
+            return json.loads(respuesta.read().decode("utf-8")).get("ok", False)
+    except Exception as error:
+        print("⚠️ No se pudo enviar el aviso por Telegram:", type(error).__name__)
+        return False
 
 
 # ========================================================
@@ -449,9 +502,13 @@ class ConsultaLocal(BaseHTTPRequestHandler):
         else:
             try:
                 p = cambiar_estado(consecutivo, decision, ACTOR, campo("motivo"))
-                destino.update(msg=f"{p['consecutivo']} quedó {p['estado']}. "
-                                   "El estudiante lo verá en Mis solicitudes.", tipo="ok")
-                print(f"✅ {p['consecutivo']} → {p['estado']} ({ACTOR})")
+                avisado = avisar_estudiante(p)
+                destino.update(msg=f"{p['consecutivo']} quedó {p['estado']}. " + (
+                    "Se le envió un aviso al estudiante por Telegram." if avisado else
+                    "No se pudo enviar el aviso por Telegram; el estudiante lo verá "
+                    "en Mis solicitudes."), tipo="ok")
+                print(f"✅ {p['consecutivo']} → {p['estado']} ({ACTOR})"
+                      + (" · aviso enviado" if avisado else " · sin aviso"))
             except ValueError as error:
                 destino.update(msg=str(error), tipo="error")
         # Patrón POST → redirección → GET: recargar no repite la decisión.
